@@ -25,7 +25,7 @@ export const constantRouterMap = [
   { path: '/login', component: () => import('@/views/login/index'), hidden: true },
   { path: '/404', component: () => import('@/views/404'), hidden: true },
 
-  {
+  { // 首页
     path: '/',
     component: Layout,
     redirect: '/dashboard',
@@ -33,28 +33,36 @@ export const constantRouterMap = [
     hidden: true,
     children: [{
       path: 'dashboard',
-      component: () => import('@/views/dashboard/index')
+      component: () => import('@/views/dashboard/index'),
+      meta: { title: '在线教育管理后台首页', icon: 'dashboard' }
     }]
   },
 
   {
-    path: '/example',
+    path: '/teacher',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'example' },
+    redirect: '/teacher/list',
+    name: 'Teacher',
+    meta: { title: '讲师管理', icon: 'user' },
     children: [
       {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
+        path: 'list',
+        name: 'EduTeacherList',
+        component: () => import('@/views/teacher/list'),
+        meta: { title: '讲师列表' }
       },
       {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
+        path: 'create',
+        name: 'EduTeacherCreate',
+        component: () => import('@/views/teacher/form'),
+        meta: { title: '添加讲师' }
+      },
+      {
+        path: 'edit/:id',
+        name: 'EduTeacherEdit',
+        component: () => import('@/views/teacher/form'),
+        meta: { title: '编辑讲师', noCache: true },
+        hidden: true
       }
     ]
   },
