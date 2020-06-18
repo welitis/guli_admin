@@ -58,11 +58,9 @@
 
       <el-table-column prop="gmtCreate" label="添加时间" width="160" />
 
-      <el-table-column prop="sort" label="排序" width="60" />
-
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
-          <router-link :to="'/edu/teacher/edit/'+scope.row.id">
+          <router-link :to="'/teacher/edit/'+scope.row.id">
             <el-button type="primary" size="mini" icon="el-icon-edit">修改</el-button>
           </router-link>
           <el-button

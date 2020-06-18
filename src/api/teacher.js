@@ -28,6 +28,21 @@ export default {
       method: 'post',
       data: teacher
     })
+  },
+  // 通过id查询讲师
+  getById(id) {
+    return request({
+      url: `${api_name}/${id}`,
+      method: 'get'
+    })
+  },
+  // 更新
+  updateById(teacher) {
+    return request({
+      url: `${api_name}`,
+      method: 'put',
+      data: teacher
+    })
   }
 
 }
