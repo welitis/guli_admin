@@ -41,7 +41,7 @@
           :width="300"
           :height="300"
           :key="imagecropperKey"
-          :url="BASE_API+'/admin/oss/file/upload'"
+          :url="BASE_API+'/eduservice/teacher/avatar/upload'"
           field="file"
           @close="close"
           @crop-upload-success="cropSuccess"/>
@@ -62,10 +62,10 @@ import PanThumb from '@/components/PanThumb'
 const defaultForm = {
   name: '',
   sort: 0,
-  level: 1,
+  level: '',
   career: '',
   intro: '',
-  avatar: process.env.OSS_PATH + '/avatar/default.png'
+  avatar: 'https://zxktest.oss-cn-shenzhen.aliyuncs.com/avatar/default.png'
 }
 
 export default {
@@ -96,7 +96,6 @@ export default {
     },
 
     cropSuccess(data) {
-      console.log(data)
       this.imagecropperShow = false
       this.teacher.avatar = data.url
       // 上传成功后，重新打开上传组件时初始化组件，否则显示上一次的上传结果
