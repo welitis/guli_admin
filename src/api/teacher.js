@@ -2,6 +2,13 @@ import request from '@/utils/request'
 
 const api_name = '/eduservice/teacher'
 export default {
+  // 获取所有讲师
+  getList() {
+    return request({
+      url: `${api_name}`,
+      method: 'get'
+    })
+  },
   // 获取讲师列表
   getPageList(page, limit, searchObj) {
     return request({

@@ -69,6 +69,8 @@ export default {
           type: 'success',
           message: response.message
         })
+        // 上传成功后跳转页面到分类
+        this.$router.push({ path: '/subject/list' })
       } else {
         this.fileUploadBtnText = '导入失败'
         this.loading = false

@@ -41,7 +41,7 @@
           :width="300"
           :height="300"
           :key="imagecropperKey"
-          :url="BASE_API+'/eduservice/teacher/avatar/upload'"
+          :url="BASE_API+'/common/upload'"
           field="file"
           @close="close"
           @crop-upload-success="cropSuccess"/>
@@ -65,7 +65,7 @@ const defaultForm = {
   level: '',
   career: '',
   intro: '',
-  avatar: 'https://zxktest.oss-cn-shenzhen.aliyuncs.com/avatar/default.png'
+  avatar: process.env.OSS_PATH + '/avatar/default.png'
 }
 
 export default {

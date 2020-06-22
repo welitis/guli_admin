@@ -9,5 +9,18 @@ export default {
       method: 'post',
       data: courseInfo
     })
+  },
+  getCourseInfoById(id) {
+    return request({
+      url: `${api_name}/info/${id}`,
+      method: 'get'
+    })
+  },
+  updateCourseInfoById(courseInfo) {
+    return request({
+      url: `${api_name}/info`,
+      method: 'put',
+      data: courseInfo
+    })
   }
 }
