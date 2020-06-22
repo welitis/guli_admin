@@ -145,20 +145,12 @@
     </el-dialog>
     <!-- 课程发布 -->
     <el-form v-if="publishShow" label-width="120px">
-      <h2 style="text-align: center;">发布新课程</h2>
-
-      <el-steps :active="3" process-status="wait" align-center style="margin-bottom: 40px;">
-        <el-step title="填写课程基本信息"/>
-        <el-step title="创建课程大纲"/>
-        <el-step title="发布课程"/>
-      </el-steps>
-
       <div class="ccInfo">
         <img :src="coursePublish.cover">
         <div class="main">
           <h2>{{ coursePublish.title }}</h2>
           <p class="gray"><span>共{{ coursePublish.lessonNum }}课时</span></p>
-          <p><span>所属分类：{{ coursePublish.subjectLevelOne }} — {{ coursePublish.subjectLevelTwo }}</span></p>
+          <p><span>所属分类：{{ coursePublish.subjectLevel }}</span></p>
           <p>课程讲师：{{ coursePublish.teacherName }}</p>
           <h3 class="red">￥{{ coursePublish.price }}</h3>
         </div>
@@ -237,6 +229,13 @@ export default {
   },
   created() {
     console.log('info created')
+    if (window.courseId) {
+      // 回显数据
+      this.fetchCourseInfoById(window.courseId)
+      // this.active--
+      this.chapterShow = false
+      this.infoShow = true
+    }
     // 获取所有分类节点
     this.fetchNodeList()
     // 获取讲师列表
@@ -247,11 +246,22 @@ export default {
       console.log(this.courseInfo)
     },
     publishInit() {
-      if (this.$route.params && this.$route.params.id) {
-        this.courseId = this.$route.params.id
+      if (window.courseId) {
+        this.courseInfo.id = window.courseId
         // 根据id获取课程基本信息
         this.fetchCoursePublishInfoById()
       }
+    },
+    publish() {
+      console.log('publish courseId: ' + this.courseInfo.id)
+      console.log(typeof (this.courseInfo.id))
+      course.publishCourse(this.courseInfo.id).then(response => {
+        this.$message({
+          type: 'success',
+          message: '发布成功'
+        })
+        this.$router.push({ path: '/course/list' })
+      })
     },
     previousPublish() {
       if (!window.courseId) {
@@ -272,7 +282,7 @@ export default {
     },
 
     fetchCoursePublishInfoById() {
-      course.getCoursePublishInfoById(this.courseId).then(response => {
+      course.getCoursePublishInfoById(this.courseInfo.id).then(response => {
         this.coursePublish = response.data.item
       })
     },
@@ -385,8 +395,10 @@ export default {
     saveOrUpdateChapter() {
       this.saveBtnDisabled = true
       if (!this.chapter.id) {
+        console.log('保存章节')
         this.saveChapterData()
       } else {
+        console.log('更新章节')
         this.updateChapterData()
       }
     },
@@ -513,7 +525,11 @@ export default {
       }
     },
     chapterNext() {
-      this.publishShow = 'true'
+      console.log('进入发布页面')
+      this.active++
+      this.publishShow = true
+      this.chapterShow = false
+      this.publishInit()
     },
     infoNext(formName) { // 课程信息页的下一页按钮事件
       // 验证表单内容
@@ -530,8 +546,10 @@ export default {
       this.saveBtnDisabled = true
       if (!window.courseId) {
         // 没有courseId，表示没有提交过信息，是第一次提交
+        console.log('保存课程信息')
         this.saveInfoData()
       } else {
+        console.log('更新课程信息')
         this.updateInfoData()
       }
     },
