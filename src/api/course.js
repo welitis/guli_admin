@@ -22,5 +22,18 @@ export default {
       method: 'put',
       data: courseInfo
     })
+  },
+  getCoursePublishInfoById(id) {
+    return request({
+      url: `${api_name}/publish/${id}`,
+      method: 'get'
+    })
+  },
+
+  publishCourse(id) {
+    return request({
+      url: `${api_name}/publish/${id}`,
+      method: 'put'
+    })
   }
 }
