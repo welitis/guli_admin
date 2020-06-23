@@ -7,25 +7,13 @@
       <!-- 所属分类：级联下拉列表 -->
       <!-- 一级分类 -->
       <el-form-item label="课程类别">
-        <el-select
-          v-model="searchObj.subjectParentId"
-          placeholder="请选择"
-          @change="subjectLevelOneChanged">
-          <el-option
-            v-for="subject in subjectNestedList"
-            :key="subject.id"
-            :label="subject.title"
-            :value="subject.id"/>
-        </el-select>
-
-        <!-- 二级分类 -->
-        <el-select v-model="searchObj.subjectId" placeholder="请选择">
-          <el-option
-            v-for="subject in subSubjectList"
-            :key="subject.id"
-            :label="subject.title"
-            :value="subject.id"/>
-        </el-select>
+        <div class="block">
+          <el-cascader
+            v-model="value"
+            :options="options"
+            :props="props"
+            @change="handleChange"/>
+        </div>
       </el-form-item>
 
       <!-- 标题 -->
@@ -137,13 +125,19 @@ export default {
 
   data() {
     return {
+      value: [],
+      // 级联选择框的属性
+      props: {
+        value: 'id',
+        label: 'title'
+      },
+      options: [],
       listLoading: true, // 是否显示loading信息
       list: null, // 数据列表
       total: 0, // 总记录数
       page: 1, // 页码
       limit: 10, // 每页记录数
       searchObj: {
-        subjectParentId: '',
         subjectId: '',
         title: '',
         teacherId: ''
@@ -160,9 +154,27 @@ export default {
     this.initSubjectList()
     // 获取讲师列表
     this.initTeacherList()
+    // 获取学科分类
+    this.fetchNodeList()
   },
 
   methods: {
+    handleChange(value) { // 级联选择框事件函数
+    // 为课程信息对象的课程分类id赋值
+      if (value.length > 0) {
+        console.log(value)
+        this.searchObj.subjectId = value[value.length - 1] // 取最后一个值的id
+      }
+    },
+    // 获取学科分类
+    fetchNodeList() {
+      subject.getNestedTreeList().then(response => {
+        if (response.success === true) {
+          this.options = response.data.items
+          // console.log('options: ' + this.options)
+        }
+      })
+    },
     removeDataById(id) {
     // debugger
       this.$confirm('此操作将永久删除该课程，以及该课程下的章节和视频，是否继续?', '提示', {
@@ -226,6 +238,7 @@ export default {
     resetData() {
       this.searchObj = {}
       this.subSubjectList = [] // 二级分类列表
+      this.value = []
       this.fetchData()
     }
   }
