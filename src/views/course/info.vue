@@ -49,7 +49,7 @@
           :show-file-list="false"
           :on-success="handleAvatarSuccess"
           :before-upload="beforeAvatarUpload"
-          :action="BASE_API + 'common/upload'"
+          :action="BASE_API + 'oss/file/upload'"
           class="avatar-uploader">
           <img :src="courseInfo.cover">
         </el-upload>
@@ -136,6 +136,25 @@
         </el-form-item>
         <el-form-item label="上传视频">
           <!-- TODO -->
+          <el-upload
+            :on-success="handleVodUploadSuccess"
+            :on-remove="handleVodRemove"
+            :before-remove="beforeVodRemove"
+            :on-exceed="handleUploadExceed"
+            :file-list="fileList"
+            :action="BASE_API+'vod/video/upload'"
+            :limit="1"
+            class="upload-demo">
+            <el-button size="small" type="primary">上传视频</el-button>
+            <el-tooltip placement="right-end">
+              <div slot="content">最大支持1G，<br>
+                支持3GP、ASF、AVI、DAT、DV、FLV、F4V、<br>
+                GIF、M2T、M4V、MJ2、MJPEG、MKV、MOV、MP4、<br>
+                MPE、MPG、MPEG、MTS、OGG、QT、RM、RMVB、<br>
+                SWF、TS、VOB、WMV、WEBM 等视频格式上传</div>
+              <i class="el-icon-question"/>
+            </el-tooltip>
+          </el-upload>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -170,6 +189,7 @@ import teacher from '@/api/teacher'
 import chapter from '@/api/chapter'
 import video from '@/api/video'
 import Tinymce from '@/components/Tinymce'
+import vod from '@/api/vod'
 
 const defaultForm = {
   title: '',
@@ -185,6 +205,7 @@ export default {
   components: { Tinymce },
   data() {
     return {
+      fileList: [], // 上传文件列表
       publishShow: false,
       publishBtnDisabled: false, // 保存按钮是否禁用
       courseId: '', // 所属课程
@@ -196,7 +217,8 @@ export default {
         title: '',
         sort: 0,
         free: 0,
-        videoSourceId: ''
+        videoSourceId: '',
+        videoOriginalName: ''
       },
       dialogChapterFormVisible: false, // 是否显示章节表单
       chapter: {// 章节对象
@@ -245,6 +267,30 @@ export default {
     test() {
       console.log(this.courseInfo)
     },
+    beforeVodRemove(file, fileList) {
+      console.log(fileList)
+      return this.$confirm(`确定移除 ${file.name}?`)
+    },
+    handleVodRemove(file, fileList) {
+      vod.removeById(this.video.videoSourceId).then(response => {
+        this.$message({
+          type: 'success',
+          message: response.message
+        })
+        this.video.videoOriginalName = ''
+        this.video.videoSourceId = ''
+        this.fileList = []
+      })
+    },
+    // 成功回调
+    handleVodUploadSuccess(response, file, fileList) {
+      this.video.videoSourceId = response.data.videoId
+      this.video.videoOriginalName = file.name
+    },
+    // 视图上传多于一个视频
+    handleUploadExceed(files, fileList) {
+      this.$message.warning('想要重新上传视频，请先删除已上传的视频')
+    },
     publishInit() {
       if (window.courseId) {
         this.courseInfo.id = window.courseId
@@ -260,6 +306,7 @@ export default {
           type: 'success',
           message: '发布成功'
         })
+        delete window.courseId // 删除全局课程id
         this.$router.push({ path: '/course/list' })
       })
     },
@@ -294,11 +341,12 @@ export default {
       }).then(() => {
         return video.removeById(videoId)
       }).then(() => {
-        this.fetchChapterNestedListByCourseId()// 刷新列表
         this.$message({
           type: 'success',
           message: '删除成功!'
         })
+        // 删除小节后清空this.video
+        this.helpSaveVideo()
       }).catch((response) => { // 失败
         if (response === 'cancel') {
           this.$message({
@@ -317,12 +365,14 @@ export default {
       this.dialogVideoFormVisible = true
       video.getVideoInfoById(videoId).then(response => {
         this.video = response.data.item
+        this.fileList = [{ 'name': this.video.videoOriginalName }]
       })
     },
     saveOrUpdateVideo() {
       this.saveVideoBtnDisabled = true
       if (!this.video.id) {
         console.log('保存视频')
+        console.log(this.video)
         this.saveDataVideo()
       } else {
         console.log('更新视频')
@@ -360,8 +410,10 @@ export default {
         title: '',
         sort: 0,
         free: 0,
-        videoSourceId: ''
+        videoSourceId: '',
+        videoOriginalName: ''
       }
+      this.fileList = [] // 清空文件列表
     },
     removeChapter(chapterId) {
       this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {

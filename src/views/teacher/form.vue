@@ -41,7 +41,7 @@
           :width="300"
           :height="300"
           :key="imagecropperKey"
-          :url="BASE_API+'/common/upload'"
+          :url="BASE_API+'oss/file/upload'"
           field="file"
           @close="close"
           @crop-upload-success="cropSuccess"/>
